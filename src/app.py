@@ -55,6 +55,72 @@ def load_gifts():
 
     conn.close()
 
+# Edit selected Gift
+def edit_gift():
+    selected = tree.selection()
+    if not selected:
+        messagebox.showwarning('Warning', 'No Gift Selected.')
+        return
+
+    gift_id = int(selected[0])
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('SELECT name, description, price, link, priority FROM gifts WHERE id=?', (gift_id,))
+    result = c.fetchone()
+    conn.close()
+
+    if result:
+        current_name, current_desc, current_price, current_link, current_priority = result
+
+        name = simpledialog.askstring('Edit Name', 'Enter Gift Name:', initialvalue=current_name, parent=root)
+        if not name:
+            return
+        desc = simpledialog.askstring('Edit Description', 'Enter Description (Optional):', initialvalue=current_desc, parent=root) or ''
+        
+        while True:
+            price_input = simpledialog.askstring('Edit Price', 'Enter Price (Optional):', initialvalue=str(current_price), parent=root)
+            if price_input is None:
+                price = current_price
+                break
+            elif price_input.strip() == '':
+                price = 0
+                break
+            try:
+                price = float(price_input)
+                break
+            except ValueError:
+                messagebox.showerror('Invalid Input', 'Please Enter a Valid Numeric Price.')
+
+        link = simpledialog.askstring('Edit Link', 'Enter Link (Optional):', initialvalue=current_link, parent=root) or ''
+        
+        while True:
+            priority_input = simpledialog.askstring('Edit Priority', 'Enter Priority (1=Highest):', initialvalue=str(current_priority), parent=root)
+            if priority_input is None:
+                priority = current_priority
+                break
+            elif priority_input.strip() == '':
+                priority = 10
+                break
+            try:
+                priority = int(priority_input)
+                break
+            except ValueError:
+                messagebox.showerror('Invalid Input', 'Please Enter a Valid Numeric Priority.')
+
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute('''
+            UPDATE gifts
+            SET name=?, description=?, price=?, link=?, priority=?
+            WHERE id=?
+        ''', (name, desc, price, link, priority, gift_id))
+        conn.commit()
+        conn.close()
+
+        load_gifts()
+        messagebox.showinfo('Gift Edited', 'The Gift details have been Updated.')
+
 # Delete selected Gift
 def delete_gift():
     selected = tree.selection()
@@ -149,6 +215,9 @@ button_frame.pack(fill='x')
 
 add_btn = tk.Button(button_frame, text='Add Gift', command=open_add_gift_dialog)
 add_btn.pack(side='left', padx=5, pady=5)
+
+edit_btn = tk.Button(button_frame, text='Edit Gift', command=edit_gift)
+edit_btn.pack(side='left', padx=5, pady=5)
 
 delete_btn = tk.Button(button_frame, text='Delete Gift', command=delete_gift)
 delete_btn.pack(side='left', padx=5, pady=5)
