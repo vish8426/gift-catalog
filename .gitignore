@@ -1,2 +1,4 @@
 *.qodo
 /dat/*
+/build
+/Gift Catalog.spec
