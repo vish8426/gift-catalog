@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import messagebox, ttk
 import sqlite3
-import os
+import sys, os
 
 # Ensure 'dat' Folder Exists
 DATA_FOLDER = 'dat'
@@ -36,6 +36,15 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+# Resource Path Settings for the App
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 # Multi-Input Pop-up Window
 def synthwave_multi_input(title, prefill=None):
@@ -247,6 +256,13 @@ def open_add_gift_dialog():
 root = tk.Tk()
 root.title('Gift Catalog')
 root.geometry('950x500')
+
+# Set Window/Taskbar Icon Explicitly
+icon_path = resource_path('assets/icons/favicon.ico')
+try:
+    root.iconbitmap(icon_path)
+except Exception as e:
+    print(f"Warning: Unable to Set Window Icon. {e}")
 
 style = ttk.Style()
 style.theme_use('default')

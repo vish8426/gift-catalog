@@ -21,7 +21,8 @@ del "%SRC_DIR%\%MAIN_FILE:.py=.spec%" 2>nul
 REM Build with PyInstaller
 pyinstaller --noconfirm --onefile --windowed ^
  --name "Gift Catalog" ^
- --icon "%ICON_PATH%" ^
+ --icon "assets\icons\favicon.ico" ^
+ --add-data "assets\icons\favicon.ico;assets/icons" ^
  "%SRC_DIR%\%MAIN_FILE%"
 
 echo Build Completed.
